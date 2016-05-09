@@ -14,14 +14,17 @@ public class Usuario {
     private String nombre;
     private String apellidos;
     private String dni;
+    private String password;
     private int edad;
     private String rol;
 
-    public Usuario(Integer id, String nombre, String apellidos, String dni, int edad, String rol) {
+    public Usuario(Integer id, String nombre, String apellidos, String dni, String password,
+            int edad, String rol) {
         this.id = id;
         this.nombre = nombre;
         this.apellidos = apellidos;
         this.dni = dni;
+        this.password = password;
         this.edad = edad;
         this.rol = rol;
     }
@@ -58,6 +61,14 @@ public class Usuario {
         this.dni = dni;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+    
     public int getEdad() {
         return edad;
     }
