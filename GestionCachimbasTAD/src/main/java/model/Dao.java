@@ -5,6 +5,7 @@
  */
 package model;
 
+import com.vaadin.ui.Notification;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -113,20 +114,16 @@ public class Dao {
 
     public int crearUsuario(Usuario usuario) throws SQLException {
         String query = "INSERT INTO usuarios (nombre,apellidos,dni,edad,rol) "
-                + "VALUES (" + usuario.getNombre() + ","
-                + usuario.getApellidos() + "," + usuario.getDni() + ","
-                + usuario.getEdad() + "," + usuario.getRol() + "," + ")";
+                + "VALUES ('" + usuario.getNombre() + "','"
+                + usuario.getApellidos() + "','" + usuario.getDni() + "','"
+                + usuario.getEdad() + "','" + usuario.getRol() + "')";
 
         PreparedStatement preparedStatement
-                = this.getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                = this.getConnection().prepareStatement(query);
         int resultado = preparedStatement.executeUpdate();
 
-//        ResultSet rs = preparedStatement.getGeneratedKeys();
-//        int res = 0;
-//        if (rs.next()) {
-//            res = rs.getInt(1);
-//        }
-//        return res;
+        Notification.show(query, Notification.Type.ERROR_MESSAGE);
+
         return resultado;
 
     }
@@ -140,9 +137,75 @@ public class Dao {
     }
 
     public int editarUsuario(Usuario usuario) throws SQLException {
-        String query = "UPDATE usuarios SET nombre=" + usuario.getNombre() + ", apellidos="
-                + usuario.getApellidos() + ", dni=" + usuario.getDni() + ", edad="
-                + usuario.getEdad() + ", rol=" + usuario.getRol();
+        String query = "UPDATE usuarios SET nombre='" + usuario.getNombre()
+                + "', apellidos='" + usuario.getApellidos()
+                + "', dni='" + usuario.getDni()
+                + "', edad=" + usuario.getEdad()
+                + ", rol='" + usuario.getRol() + "' WHERE id=" + usuario.getId();
+        PreparedStatement preparedStatement = this.getConnection().prepareStatement(query);
+        int resultado = preparedStatement.executeUpdate();
+
+        return resultado;
+    }
+    
+    public List<Cachimba> getListaCachimbas() throws SQLException {
+        List<Cachimba> listaCachimbas = new ArrayList();
+        Statement statement = this.getConnection().createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM cachimbas ORDER BY id");
+        while (resultSet.next()) {
+            Cachimba cachimba = new Cachimba(Integer.parseInt(resultSet.getString("id")),
+                    resultSet.getString("marca"),
+                    resultSet.getString("modelo"),
+                    Float.parseFloat(resultSet.getString("alquiler")));
+            listaCachimbas.add(cachimba);
+        }
+        resultSet.close();
+        statement.close();
+        return listaCachimbas;
+    }
+
+    public Cachimba getCachimba(Integer id) throws SQLException {
+        Cachimba cachimba = null;
+        Statement statement = this.getConnection().createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM cachimbas WHERE id='" + id + "'");
+        while (resultSet.next()) {
+            cachimba = new Cachimba(Integer.parseInt(resultSet.getString("id")),
+                    resultSet.getString("marca"),
+                    resultSet.getString("modelo"),
+                    Float.parseFloat(resultSet.getString("rol")));
+        }
+
+        return cachimba;
+    }
+
+    public int crearCachimba(Cachimba cachimba) throws SQLException {
+        String query = "INSERT INTO cachimbas (marca,modelo,alquiler) "
+                + "VALUES ('" + cachimba.getMarca() + "','"
+                + cachimba.getModelo() + "','" + cachimba.getAlquiler() + "')";
+
+        PreparedStatement preparedStatement
+                = this.getConnection().prepareStatement(query);
+        int resultado = preparedStatement.executeUpdate();
+
+        Notification.show(query, Notification.Type.ERROR_MESSAGE);
+
+        return resultado;
+
+    }
+
+    public int eliminarCachimba(Integer id) throws SQLException {
+        String query = "DELETE FROM cachimbas WHERE id='" + id + "'";
+        PreparedStatement preparedStatement = this.getConnection().prepareStatement(query);
+        int resultado = preparedStatement.executeUpdate();
+
+        return resultado;
+    }
+
+    public int editarCachimba(Cachimba cachimba) throws SQLException {
+        String query = "UPDATE cachimbas SET marca='" + cachimba.getMarca()
+                + "', modelo='" + cachimba.getModelo()
+                + "', alquiler=" + cachimba.getAlquiler()
+                + " WHERE id=" + cachimba.getId();
         PreparedStatement preparedStatement = this.getConnection().prepareStatement(query);
         int resultado = preparedStatement.executeUpdate();
 

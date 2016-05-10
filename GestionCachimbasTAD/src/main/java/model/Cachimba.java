@@ -11,15 +11,25 @@ package model;
  */
 public class Cachimba {
     
+    private Integer id;
     private String marca;
     private String modelo;
     private float alquiler;
     
     
-    public Cachimba(String marca,String modelo, float alquiler){
+    public Cachimba(Integer id, String marca,String modelo, float alquiler){
+        this.id = id;
         this.marca=marca;
         this.modelo=modelo;
         this.alquiler=alquiler;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
     
     public void setMarca(String marca){
