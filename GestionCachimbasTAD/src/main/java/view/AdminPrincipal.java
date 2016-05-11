@@ -1,5 +1,4 @@
 //MIERCOLES 11, 00:04
-
 package view;
 
 import com.vaadin.annotations.Theme;
@@ -19,6 +18,7 @@ import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.PasswordField;
+import com.vaadin.ui.Slider;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
@@ -34,7 +34,12 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.annotation.WebServlet;
+import model.Cachimba;
+import model.Carbon;
+import model.Cazoleta;
 import model.Dao;
+import model.Manguera;
+import model.Tabaco;
 import model.Usuario;
 
 /**
@@ -118,6 +123,8 @@ public class AdminPrincipal extends UI {
                                     password.getValue(),
                                     Integer.parseInt(edad.getValue()),
                                     rol.getValue().toString());
+                            Notification.show(usuario.getRol(), Notification.Type.ERROR_MESSAGE);
+
                             Dao dao = new Dao();
                             try {
                                 dao.conexion();
@@ -135,13 +142,86 @@ public class AdminPrincipal extends UI {
                     v2h1.addComponent(insertarUsuario);
                 }
             });
-
             v2h2.addComponent(crearUsuario);
+
+            Button crearCachimba = new Button("Nueva Cachimba");
+            crearCachimba.addClickListener(new Button.ClickListener() {
+                @Override
+                public void buttonClick(Button.ClickEvent event) {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+            });
+            v2h2.addComponent(crearCachimba);
+
+            Button crearCarbon = new Button("Nuevo Carbon");
+            crearCarbon.addClickListener(new Button.ClickListener() {
+                @Override
+                public void buttonClick(Button.ClickEvent event) {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+            });
+            v2h2.addComponent(crearCarbon);
+
+            Button crearCazoleta = new Button("Nueva Cazoleta");
+            crearCazoleta.addClickListener(new Button.ClickListener() {
+                @Override
+                public void buttonClick(Button.ClickEvent event) {
+                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+            });
+            v2h2.addComponent(crearCazoleta);
+
+            Button crearManguera = new Button("Nueva Manguera");
+            crearManguera.addClickListener(new Button.ClickListener() {
+                @Override
+                public void buttonClick(Button.ClickEvent event) {
+                    v2h1.removeAllComponents();
+                    final TextField tipo = new TextField("Tipo");
+                    v2h1.addComponent(tipo);
+
+                    Slider precio = new Slider("Precio");
+                    precio.setImmediate(true);
+                    precio.setMin(0.0);
+                    precio.setMax(100.0);
+                    precio.setValue(50.0);
+                    v2h1.addComponent(precio);
+
+                    Button insertarManguera = new Button("Crear manguera");
+                    insertarManguera.addClickListener(new Button.ClickListener() {
+
+                        @Override
+                        public void buttonClick(Button.ClickEvent event) {
+                            Manguera manguera = new Manguera(0,
+                                    tipo.getValue(),
+                                    precio.getValue().floatValue());
+                            Dao dao = new Dao();
+                            try {
+                                dao.conexion();
+                                dao.crearManguera(manguera);
+                            } catch (InstantiationException ex) {
+                                Logger.getLogger(AdminPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (IllegalAccessException ex) {
+                                Logger.getLogger(AdminPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (SQLException ex) {
+                                Logger.getLogger(AdminPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    });
+
+                    v2h1.addComponent(insertarManguera);
+                }
+            });
+            v2h2.addComponent(crearManguera);
 
             Dao dao = new Dao();
             dao.conexion();
 
             List<Usuario> listaUsuarios = dao.getListaUsuarios();
+            List<Cachimba> listaCachimbas = dao.getListaCachimbas();
+            List<Carbon> listaCarbones = dao.getListaCarbones();
+            List<Cazoleta> listaCazoletas = dao.getListaCazoletas();
+//            List<Manguera> listaMangueras = dao.getListaMangueras();
+//            List<Tabaco> listaTabacos = dao.getListaTabacos();
 
             Tree tree1 = new Tree("Panel Administracion");
             String usuariosParent = "Usuarios";
@@ -152,7 +232,6 @@ public class AdminPrincipal extends UI {
                 tree1.setItemCaption(usuario, usuario.getNombre() + " " + usuario.getDni());
                 tree1.setChildrenAllowed(usuario, false);
             }
-
             tree1.setSelectable(true);
             tree1.addValueChangeListener(new Property.ValueChangeListener() {
 
@@ -213,7 +292,7 @@ public class AdminPrincipal extends UI {
                             }
                         }
                     });
-                   
+
                     Button eliminarButton = new Button("Eliminar usuario");
                     eliminarButton.addClickListener(new Button.ClickListener() {
 
@@ -237,8 +316,252 @@ public class AdminPrincipal extends UI {
                     v2h1.addComponent(eliminarButton);
                 }
             });
-
             v1.addComponent(tree1);
+
+            Tree tree2 = new Tree();
+            String cachimbasParent = "Cachimbas";
+            tree2.addItem(cachimbasParent);
+            for (Cachimba cachimba : listaCachimbas) {
+                tree2.addItem(cachimba);
+                tree2.setParent(cachimba, cachimbasParent);
+                tree2.setItemCaption(cachimba, cachimba.getMarca() + " " + cachimba.getModelo());
+                tree2.setChildrenAllowed(cachimba, false);
+            }
+            tree2.setSelectable(true);
+            tree2.addValueChangeListener(new Property.ValueChangeListener() {
+
+                @Override
+                public void valueChange(Property.ValueChangeEvent event) {
+                    v2h1.removeAllComponents();
+
+                    final Cachimba c = (Cachimba) event.getProperty().getValue();
+
+                    final TextField marca = new TextField("Marca", c.getMarca());
+                    v2h1.addComponent(marca);
+
+                    final TextField modelo = new TextField("Modelo", c.getModelo());
+                    v2h1.addComponent(modelo);
+
+//                    final TextField edad = new TextField("Edad", String.valueOf(u.getEdad()));
+//                    v2h1.addComponent(edad);
+                    Slider alquiler = new Slider();
+                    alquiler.setImmediate(true);
+                    alquiler.setCaption("Precio alquiler");
+                    alquiler.setMin(0.0);
+                    alquiler.setMax(100.0);
+                    alquiler.setValue(10.0);
+                    v2h1.addComponent(alquiler);
+
+                    Button actualizarButton = new Button("Actualizar cachimba");
+                    actualizarButton.addClickListener(new Button.ClickListener() {
+
+                        @Override
+                        public void buttonClick(Button.ClickEvent event) {
+                            Cachimba nuevoCachimba = new Cachimba(c.getId(),
+                                    marca.getValue(),
+                                    modelo.getValue(),
+                                    alquiler.getValue().floatValue());
+                            Dao dao = new Dao();
+                            try {
+                                dao.conexion();
+                                dao.editarCachimba(nuevoCachimba);
+                                v2h1.removeAllComponents();
+                                v2h2.removeAllComponents();
+                                Notification.show("Cachimba modificada con éxito",
+                                        Notification.Type.HUMANIZED_MESSAGE);
+                            } catch (InstantiationException ex) {
+                                Logger.getLogger(AdminPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (IllegalAccessException ex) {
+                                Logger.getLogger(AdminPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (SQLException ex) {
+                                Logger.getLogger(AdminPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    });
+
+                    Button eliminarButton = new Button("Eliminar cachimba");
+                    eliminarButton.addClickListener(new Button.ClickListener() {
+
+                        @Override
+                        public void buttonClick(Button.ClickEvent event) {
+                            Dao dao = new Dao();
+                            try {
+                                dao.conexion();
+                                dao.eliminarCachimba(c.getId());
+                            } catch (SQLException ex) {
+                                Logger.getLogger(AdminPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (InstantiationException ex) {
+                                Logger.getLogger(AdminPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (IllegalAccessException ex) {
+                                Logger.getLogger(AdminPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    });
+
+                    v2h1.addComponent(actualizarButton);
+                    v2h1.addComponent(eliminarButton);
+                }
+            });
+            v1.addComponent(tree2);
+
+            Tree tree3 = new Tree();
+            String carbonesParent = "Carbones";
+            tree3.addItem(carbonesParent);
+            for (Carbon carbon : listaCarbones) {
+                tree3.addItem(carbon);
+                tree3.setParent(carbon, carbonesParent);
+                tree3.setItemCaption(carbon, carbon.getTipo());
+                tree3.setChildrenAllowed(carbon, false);
+            }
+            tree3.setSelectable(true);
+            tree3.addValueChangeListener(new Property.ValueChangeListener() {
+
+                @Override
+                public void valueChange(Property.ValueChangeEvent event) {
+                    v2h1.removeAllComponents();
+
+                    final Carbon c = (Carbon) event.getProperty().getValue();
+
+                    final TextField tipo = new TextField("Tipo", c.getTipo());
+                    v2h1.addComponent(tipo);
+
+                    Slider precio = new Slider();
+                    precio.setImmediate(true);
+                    precio.setCaption("Precio");
+                    precio.setMin(0.0);
+                    precio.setMax(100.0);
+                    precio.setValue(10.0);
+                    v2h1.addComponent(precio);
+
+                    Button actualizarButton = new Button("Actualizar carbon");
+                    actualizarButton.addClickListener(new Button.ClickListener() {
+
+                        @Override
+                        public void buttonClick(Button.ClickEvent event) {
+                            Carbon nuevoCarbon = new Carbon(c.getId(),
+                                    tipo.getValue(),
+                                    precio.getValue().floatValue());
+                            Dao dao = new Dao();
+                            try {
+                                dao.conexion();
+                                dao.editarCarbon(nuevoCarbon);
+                                v2h1.removeAllComponents();
+                                v2h2.removeAllComponents();
+                                Notification.show("Carbon modificado con éxito",
+                                        Notification.Type.HUMANIZED_MESSAGE);
+                            } catch (InstantiationException ex) {
+                                Logger.getLogger(AdminPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (IllegalAccessException ex) {
+                                Logger.getLogger(AdminPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (SQLException ex) {
+                                Logger.getLogger(AdminPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    });
+
+                    Button eliminarButton = new Button("Eliminar carbon");
+                    eliminarButton.addClickListener(new Button.ClickListener() {
+
+                        @Override
+                        public void buttonClick(Button.ClickEvent event) {
+                            Dao dao = new Dao();
+                            try {
+                                dao.conexion();
+                                dao.eliminarCarbon(c.getId());
+                            } catch (SQLException ex) {
+                                Logger.getLogger(AdminPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (InstantiationException ex) {
+                                Logger.getLogger(AdminPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (IllegalAccessException ex) {
+                                Logger.getLogger(AdminPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    });
+
+                    v2h1.addComponent(actualizarButton);
+                    v2h1.addComponent(eliminarButton);
+                }
+            });
+            v1.addComponent(tree3);
+
+            Tree tree4 = new Tree();
+            String cazoletasParent = "Cazoletas";
+            tree4.addItem(cazoletasParent);
+            for (Cazoleta cazoleta : listaCazoletas) {
+                tree4.addItem(cazoleta);
+                tree4.setParent(cazoleta, cazoletasParent);
+                tree4.setItemCaption(cazoleta, cazoleta.getTipo());
+                tree4.setChildrenAllowed(cazoleta, false);
+            }
+            tree4.setSelectable(true);
+            tree4.addValueChangeListener(new Property.ValueChangeListener() {
+                @Override
+                public void valueChange(Property.ValueChangeEvent event) {
+                    v2h1.removeAllComponents();
+
+                    final Cazoleta c = (Cazoleta) event.getProperty().getValue();
+
+                    final TextField tipo = new TextField("Tipo", c.getTipo());
+                    v2h1.addComponent(tipo);
+
+                    Slider precio = new Slider();
+                    precio.setImmediate(true);
+                    precio.setCaption("Precio");
+                    precio.setMin(0.0);
+                    precio.setMax(100.0);
+                    precio.setValue(10.0);
+                    v2h1.addComponent(precio);
+
+                    Button actualizarButton = new Button("Actualizar cazoleta");
+                    actualizarButton.addClickListener(new Button.ClickListener() {
+
+                        @Override
+                        public void buttonClick(Button.ClickEvent event) {
+                            Cazoleta nuevoCazoleta = new Cazoleta(c.getId(),
+                                    tipo.getValue(),
+                                    precio.getValue().floatValue());
+                            Dao dao = new Dao();
+                            try {
+                                dao.conexion();
+                                dao.editarCazoleta(nuevoCazoleta);
+                                v2h1.removeAllComponents();
+                                v2h2.removeAllComponents();
+                                Notification.show("Cazoleta modificada con éxito",
+                                        Notification.Type.HUMANIZED_MESSAGE);
+                            } catch (InstantiationException ex) {
+                                Logger.getLogger(AdminPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (IllegalAccessException ex) {
+                                Logger.getLogger(AdminPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (SQLException ex) {
+                                Logger.getLogger(AdminPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    });
+
+                    Button eliminarButton = new Button("Eliminar cazoleta");
+                    eliminarButton.addClickListener(new Button.ClickListener() {
+
+                        @Override
+                        public void buttonClick(Button.ClickEvent event) {
+                            Dao dao = new Dao();
+                            try {
+                                dao.conexion();
+                                dao.eliminarCazoleta(c.getId());
+                            } catch (SQLException ex) {
+                                Logger.getLogger(AdminPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (InstantiationException ex) {
+                                Logger.getLogger(AdminPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (IllegalAccessException ex) {
+                                Logger.getLogger(AdminPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    });
+
+                    v2h1.addComponent(actualizarButton);
+                    v2h1.addComponent(eliminarButton);
+                }
+            });
+            v1.addComponent(tree4);
 
             dao.cerrarConexion();
         } catch (SQLException ex) {

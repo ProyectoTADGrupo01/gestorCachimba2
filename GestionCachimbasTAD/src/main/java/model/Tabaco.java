@@ -10,12 +10,22 @@ package model;
  * @author Fran13
  */
 public class Tabaco {
+    private Integer id;
     private String sabor;
     private float alquiler;
 
-    public Tabaco(String sabor, float alquiler) {
+    public Tabaco(Integer id, String sabor, float alquiler) {
+        this.id = id;
         this.sabor = sabor;
         this.alquiler = alquiler;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
     
     public String getSabor() {

@@ -10,14 +10,24 @@ package model;
  * @author Fran13
  */
 public class Cazoleta {
+    private Integer id;
     private String tipo;
     private float precio;
 
-    public Cazoleta(String tipo, float precio) {
+    public Cazoleta(Integer id, String tipo, float precio) {
+        this.id = id;
         this.tipo = tipo;
         this.precio = precio;
     }
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+    
     public String getTipo() {
         return tipo;
     }

@@ -10,14 +10,24 @@ package model;
  * @author Fran13
  */
 public class Carbon {
+    private Integer id;
     private String tipo;
     private float precio;
 
-    public Carbon(String tipo, float precio) {
+    public Carbon(Integer id, String tipo, float precio) {
+        this.id = id;
         this.tipo = tipo;
         this.precio = precio;
     }
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+    
     public String getTipo() {
         return tipo;
     }
@@ -33,6 +43,5 @@ public class Carbon {
     public void setPrecio(float precio) {
         this.precio = precio;
     }
-    
     
 }
